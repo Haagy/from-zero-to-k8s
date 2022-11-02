@@ -5,7 +5,7 @@ this branch consists of [source code](rest-api) for building a simple containeri
 ### Use the following commands to build the app:
 ```
 cd rest-api
-docker build --file Containerfile --tag python-rest-api:1.0
+docker build --file Containerfile --tag python-rest-api:1.0 .
 ```
 
 ### To start and test the app you can use the following commands:
