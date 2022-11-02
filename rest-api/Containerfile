@@ -1,0 +1,8 @@
+FROM docker.io/library/python:3.10.7-slim-bullseye
+
+RUN mkdir /app
+WORKDIR /app
+ADD . /app/
+RUN pip install --requirement requirements.txt
+
+CMD ["python", "main.py"]
