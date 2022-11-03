@@ -1,0 +1,22 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: python-rest-api
+  name: python-rest-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-rest-api
+  template:
+    metadata:
+      labels:
+        app: python-rest-api
+    spec:
+      containers:
+        - image: docker.io/haagy/python-rest-api:1.0
+          name: python-rest-api
+          ports:
+            - containerPort: 5000
