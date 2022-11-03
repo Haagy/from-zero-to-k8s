@@ -1,41 +1,88 @@
-# Step 1
-In the current status we have one running application in a container runtime. 
-But we actually want to deploy this application to a kubernetes cluster.
-To do so we have to tell kubernetes to run our application in a pod.
-Go to your virtual machine, where you have access to `kubectl`, and run:
+# Step 2
+In this lecture we want to learn how to use Deployment and Services in Kubernetes.
+
+## Use case
+* We will release our first application as a [proof of concept](#deploy-application-as-proof-of-concept) on Kubernetes
+* We will make the [application available for our customers](#available-for-customers)
+* The customers tested our application and added some feature requests. 
+Our deployment team implemented these requirements. Let us [update our application](#updating-an-application).
+
+## Deploy application as proof of concept
+A Deployment is used to manage a set of Pods.
+Without a Deployment, we need to create, update, and delete all pods manually.
+
+Let us turn our single Pod into a Deployment.
+Run the following command to create a Deployment from [file](k8s/deployment.yml):
 ```bash
-kubectl run python-rest-api --image=docker.io/haagy/python-rest-api:1.0 --port=5000
+kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/step/v2/k8s/deployment.yml
+```
+This will create three objects:
+* The Pod where our application is running
+* A *ReplicaSet* which manages, how many instances of our application should run
+* And a Deployment which handles the update process for this application
+
+That can be displayed with:
+```bash
+kubectl get all
 ```
 
-To get some information about the running pod you can use:
+## Available for customers
+Services enable network access Pods in Kubernetes.
+Services select Pods based on their labels.
+There are multiple types of Services that can be used. 
+[Here](https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0) is good article explaining the differences.
+In this tutorial we use the type `LoadBalancer`
+
+Run the following command to create a *Service* from [file](k8s/service.yml)
 ```bash
-# get status of all pods
+kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/step/v2/k8s/service.yml
+```
+
+Now we are able to call the api via curl:
+```bash
+# get service port
+export SERVICE_PORT=$(kubectl get services/python-rest-api --output=go-template='{{(index .spec.ports 0).nodePort}}')
+
+# curl on main node
+curl localhost:$SERVICE_PORT
+```
+
+## Updating an application
+Let us update the Deployment. 
+In [deployment-improved.yml](k8s/deployment-improved.yml) we updated `image: docker.io/haagy/python-rest-api:1.1` and set `replicas: 4`.
+The changes to the image are, that the application should now return `Hello! Greetings from Pod: <HOSTNAME>`.
+<HOSTNAME> represents the name where the application is running in (mostly a hashed value)
+Let us apply this changes and see what is happening:
+```bash
+kubectl apply --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/step/v2/k8s/deployment-improved.yml
+```
+If you are quick enough with:
+```bash
+kubectl get all
+```
+you will notice, that the old Pod is in state `Terminating` und 4 new Pods are created.
+
+If you now execute the curl command a few times different outputs are displayed.
+```bash
+# get service port
+export SERVICE_PORT=$(kubectl get services/python-rest-api --output=go-template='{{(index .spec.ports 0).nodePort}}')
+
+# curl on main node
+curl localhost:$SERVICE_PORT
+```
+
+
+The outputs will match the output from as Kubernetes created those Pods with these names.
+```bash
 kubectl get pods
-
-# get information about a single pod
-kubectl describe pod python-rest-api
 ```
-
-But working with the command line is not a good way to use kubernetes in a long term. 
-A more preferred way is using `yaml`.
-As an example, we could achieve the same as above with the file [pod.yml](k8s/pod.yml).
-```bash
-kubectl create --file pod.yml
-```
-But now we also have the ability to add this file in to **Git**, adjust it and trace all changes.
-Moreover, kubernetes helps us to create this files by adding the parameters `--dry-run=client` and `--output=yaml`
-```bash
-kubectl run python-rest-api --image=docker.io/haagy/python-rest-api:1.0 --port=5000 --dry-run=client --output=yaml
-```
-Now we don't have to remember the whole structure.
 
 ## Next steps
-At this point we actually won nothing except the experience of changing the commands to (nearly) do the same thing.
-Worse. We currently are not able to reach the application without further configuration in kubernetes.
-In [step 2](https://github.com/Haagy/from-zero-to-k8s/tree/step/v2) we will dig deeper into:
-* making the application available
-* use one of the main advantages in kubernetes - the ability to scale applications
+New we have a running application that can be called from outside our cluster.
+In [step 2](https://github.com/Haagy/from-zero-to-k8s/tree/step/v2) we want to have a look at how extend our application more and how to connect it with other applications.
+
 
 ## Playing around
-From here you can play around with pods.
-Maybe insert your own image, that you created in [step 0](https://github.com/Haagy/from-zero-to-k8s/tree/step/v0)
+At this point you are able to play with your Deployment.
+You could change the DeploymentStrategy and see how one differs from the other.
+Have a look at [here](https://blog.container-solutions.com/kubernetes-deployment-strategies) for more information about strategies.
