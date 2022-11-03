@@ -5,7 +5,6 @@ metadata:
   labels:
     app: python-rest-api
   name: python-rest-api
-  namespace: test
 spec:
   ports:
     - port: 5000
