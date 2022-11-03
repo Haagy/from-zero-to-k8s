@@ -1,12 +1,12 @@
 import os
 from flask import Flask
+import socket
 
-# defaults
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return "Hello! Greetings from Python Rest Api"
+    return f"Hello! Greetings from {socket.gethostname()}"
 
 if __name__ == "__main__":
     app.run(
