@@ -1,43 +1,41 @@
-# From zero to kubernetes
-Starting from zero lets say you want to deploy a simple python rest api as a containerized application.
+# Step 1
+In the current status we have one running application in a container runtime. 
+But we actually want to deploy this application to a kubernetes cluster.
+To do so we have to tell kubernetes to run our application in a pod.
+Go to your virtual machine, where you have access to `kubectl`, and run:
+```bash
+kubectl run python-rest-api --image=docker.io/haagy/python-rest-api:1.0 --port=5000
+```
 
-You can do so by just pulling an existing image from docker hub:
-```
-docker pull docker.io/haagy/python-rest-api:1.0
+To get some information about the running pod you can use:
+```bash
+# get status of all pods
+kubectl get pods
+
+# get information about a single pod
+kubectl describe pod python-rest-api
 ```
 
-To start and test the app you can use the following commands:
+But working with the command line is not a good way to use kubernetes in a long term. 
+A more preferred way is using `yaml`.
+As an example, we could achieve the same as above with the file [pod.yml](k8s/pod.yml).
+```bash
+kubectl create --file pod.yml
 ```
-docker run --detach --rm --publish 5000:5000 --name python-rest-api docker.io/haagy/python-rest-api:1.0
-curl localhost:5000
+But now we also have the ability to add this file in to **Git**, adjust it and trace all changes.
+Moreover, kubernetes helps us to create this files by adding the parameters `--dry-run=client` and `--output=yaml`
+```bash
+kubectl run python-rest-api --image=docker.io/haagy/python-rest-api:1.0 --port=5000 --dry-run=client --output=yaml
 ```
-It should return `Hello! Greetings from Python Rest Api`
-
-Great. You just deployed your first running containerized application.
+Now we don't have to remember the whole structure.
 
 ## Next steps
-The next step would be to deploy this application to a kubernetes cluster. To try this out go to the [next step](https://github.com/Haagy/from-zero-to-k8s/tree/step/v1)
+At this point we actually won nothing except the experience of changing the commands to (nearly) do the same thing.
+Worse. We currently are not able to reach the application without further configuration in kubernetes.
+In [step 2](https://github.com/Haagy/from-zero-to-k8s/tree/step/v2) we will dig deeper into:
+* making the application available
+* use one of the main advantages in kubernetes - the ability to scale applications
 
 ## Playing around
-This branch also contains [the whole source code](rest-api) for building this simple application.
-You can grab that an start playing around if you not quiet familiar with containerizing
-
-Maybe changing the return message called by `index()` in [main.py](rest-api/main.py)
-Use the following commands to apply your changes and build your own app:
-```
-cd rest-api/
-docker build --file Containerfile --tag my-app:my-tag .
-```
-
-To start and test your own application execute:
-```
-docker run --interactive --tty --publish 6000:5000 --name my-changed-app my-app:my-tag
-curl localhost:6000
-```
-
-If you have an running private registry and want to push your own build image to reuse it:
-```
-export REGISTRY_HOST=<MY_REGISTRY>
-docker tag my-app:my-tag $REGISTRY_HOST/my-app:my-tag
-docker push $REGISTRY_HOST/my-app:my-tag
-```
+From here you can play around with pods.
+Maybe insert your own image, that you created in [step 0](https://github.com/Haagy/from-zero-to-k8s/tree/step/v0)
