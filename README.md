@@ -2,12 +2,12 @@
 In this lecture we want to learn how to use Deployment and Services in Kubernetes.
 
 ## Use case
-* We will release our first application as a [proof of concept](#deploy-application-as-proof-of-concept) on Kubernetes
-* We will make the [application available for our customers](#available-for-customers)
-* The customers tested our application and added some feature requests. 
-Our deployment team implemented these requirements. Let us [update our application](#updating-an-application).
+* A) We will release our first application as a [proof of concept](#a-deploy-application-as-proof-of-concept) on Kubernetes
+* B) We will make the [application available for our customers](#b-available-for-customers)
+* C) The customers tested our application and added some feature requests. 
+Our deployment team implemented these requirements. Let us [update our application](#c-updating-an-application).
 
-## Deploy application as proof of concept
+### A) Deploy application as proof of concept
 A Deployment is used to manage a set of Pods.
 Without a Deployment, we need to create, update, and delete all pods manually.
 
@@ -26,7 +26,7 @@ That can be displayed with:
 kubectl get all
 ```
 
-## Available for customers
+### B) Available for customers
 Services enable network access Pods in Kubernetes.
 Services select Pods based on their labels.
 There are multiple types of Services that can be used. 
@@ -47,7 +47,7 @@ export SERVICE_PORT=$(kubectl get services/python-rest-api --output=go-template=
 curl localhost:$SERVICE_PORT
 ```
 
-## Updating an application
+### C) Updating an application
 Let us update the Deployment. 
 In [deployment-improved.yml](k8s/deployment-improved.yml) we updated `image: docker.io/haagy/python-rest-api:1.1` and set `replicas: 4`.
 The changes to the image are, that the application should now return `Hello! Greetings from Pod: <HOSTNAME>`.
