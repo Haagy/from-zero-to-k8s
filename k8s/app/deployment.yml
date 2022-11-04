@@ -2,20 +2,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python-test
+  name: python-rest-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: python-test
+      app: python-rest-api
   template:
     metadata:
       labels:
-        app: python-test
+        app: python-rest-api
     spec:
       containers:
-      - name: python-test
-        image: 10.10.10.9:5000/python-test-docker:2.1
+      - name: python-rest-api
+        image: docker.io/haagy/python-rest-api:1.2
         imagePullPolicy: Always
         ports:
         - containerPort: 6666
