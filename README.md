@@ -1,10 +1,10 @@
-# Step 2
-In this lecture we want to learn how to use Deployment and Services in Kubernetes.
+# Step 3
+In this lecture we want to learn more about Services and how to connect multiple applications
 
 ## Use case
-* We will release our first application as a [proof of concept](#deploy-application-as-proof-of-concept) on Kubernetes
-* We will make the [application available for our customers](#available-for-customers)
-* The customers tested our application and added some feature requests. 
+* A) We will release our first application as a [proof of concept](#deploy-application-as-proof-of-concept) on Kubernetes
+* B) We will make the [application available for our customers](#available-for-customers)
+* C) The customers tested our application and added some feature requests. 
 Our deployment team implemented these requirements. Let us [update our application](#updating-an-application).
 
 ## Deploy application as proof of concept
