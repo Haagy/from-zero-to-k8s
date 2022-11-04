@@ -20,7 +20,7 @@ But working with the command line is not a good way to use kubernetes in a long 
 A more preferred way is using `yaml`.
 As an example, we could achieve the same as above with the file [pod.yml](k8s/pod.yml).
 ```bash
-kubectl create --file pod.yml
+kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/step/v1/k8s/pod.yml
 ```
 But now we also have the ability to add this file in to **Git**, adjust it and trace all changes.
 Moreover, kubernetes helps us to create this files by adding the parameters `--dry-run=client` and `--output=yaml`
