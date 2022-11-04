@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: pythondb
+  POSTGRES_USER: python
+  POSTGRES_PORT: "5432"
