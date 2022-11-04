@@ -1,4 +1,4 @@
-# From zero to kubernetes
+# Step 0
 Starting from zero lets say you want to deploy a simple python rest api as a containerized application.
 
 You can do so by just pulling an existing image from docker hub:
