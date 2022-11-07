@@ -1,85 +1,64 @@
-# Step 3
-In this lecture we want to learn more about Services and how to connect multiple applications
+# Use case 3
+Our application starts growing more and more. We want to improve our application and need to persist our data.
+Therefore, we need to create:
+* A) [Configurations](#configurations)
+  * Add a Secret used in app and database deployment
+  * Create a ConfigMap containing information needed for the database connection
+  * Add an initiation script for the database
+* B) A [Volume](#volumes) where data is getting persisted
+  * Create PersistentVolume 
+  * Create PersistentVolumeClaim 
+* C) Another [Deployment](#database-deployment) and update existing 
+  * Create a database Deployment and update
+  * Update existing
 
-## Use case
-* A) We will release our first application as a [proof of concept](#deploy-application-as-proof-of-concept) on Kubernetes
-* B) We will make the [application available for our customers](#available-for-customers)
-* C) The customers tested our application and added some feature requests. 
-Our deployment team implemented these requirements. Let us [update our application](#updating-an-application).
+## Configurations
+* [Secrets](k8s/db/config/vars.yml) hide sensitive data as Base64 encoded string.
+* ConfigMaps can be used to add [multiple configuration variables](k8s/db/config/vars.yml).
+* ConfigMaps can also be used to store files like [database init script](k8s/db/config/init-db.sql)
 
-## Deploy application as proof of concept
-A Deployment is used to manage a set of Pods.
-Without a Deployment, we need to create, update, and delete all pods manually.
-
-Let us turn our single Pod into a Deployment.
-Run the following command to create a Deployment from [file](k8s/deployment.yml):
+Run the following commands
 ```bash
-kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/step/v2/k8s/deployment.yml
-```
-This will create three objects:
-* The Pod where our application is running
-* A *ReplicaSet* which manages, how many instances of our application should run
-* And a Deployment which handles the update process for this application
+# secret
+kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/db/config/secret.yml
 
-That can be displayed with:
-```bash
-kubectl get all
-```
+# common vars
+kubectl create --filename=https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/db/config/vars.yml
 
-## Available for customers
-Services enable network access Pods in Kubernetes.
-Services select Pods based on their labels.
-There are multiple types of Services that can be used. 
-[Here](https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0) is good article explaining the differences.
-In this tutorial we use the type `LoadBalancer`
-
-Run the following command to create a *Service* from [file](k8s/service.yml)
-```bash
-kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/step/v2/k8s/service.yml
+# init script
+kubectl create configmap init-db.sql --from-file=https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/db/config/init-db.sql
 ```
 
-Now we are able to call the api via curl:
+## Volumes
+Volumes persist data in different ways. 
+One that we are using [here](k8s/db/volume/pv.yml) is on local storage that retains data even if the Pod is getting destroyed.
+But before Kubernetes decides on which Node database with PersistentVolume is getting deployed we need to [request for storage](k8s/db/volume/pvc.yml).
 ```bash
-# get service port
-export SERVICE_PORT=$(kubectl get services/python-rest-api --output=go-template='{{(index .spec.ports 0).nodePort}}')
-
-# curl on main node
-curl localhost:$SERVICE_PORT
+kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/db/volume/pv.yml
+kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/db/volume/pvc.yml
 ```
 
-## Updating an application
-Let us update the Deployment. 
-In [deployment-improved.yml](k8s/deployment-improved.yml) we updated `image: docker.io/haagy/python-rest-api:1.1` and set `replicas: 4`.
-The changes to the image are, that the application should now return `Hello! Greetings from Pod: <HOSTNAME>`.
-<HOSTNAME> represents the name where the application is running in (mostly a hashed value)
-Let us apply this changes and see what is happening:
+## Database Deployment
+All resources created above are included in the deployment files:
 ```bash
-kubectl apply --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/step/v2/k8s/deployment-improved.yml
-```
-If you are quick enough with:
-```bash
-kubectl get all
-```
-you will notice, that the old Pod is in state `Terminating` und 4 new Pods are created.
+# create database deployment and service
+kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/db/deployment.yml
+kubectl create --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/db/svc.yml
 
-If you now execute the curl command a few times different outputs are displayed.
-```bash
-# get service port
-export SERVICE_PORT=$(kubectl get services/python-rest-api --output=go-template='{{(index .spec.ports 0).nodePort}}')
-
-# curl on main node
-curl localhost:$SERVICE_PORT
+# apply changes to the python rest application
+kubectl apply --filename https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/app/deployment.yml
 ```
 
-
-The outputs will match the output from as Kubernetes created those Pods with these names.
-```bash
-kubectl get pods
+To connect the python rest api to the database we add the name of the database Service as environment variable to [application deployment](k8s/app/deployment.yml)
+```yaml
+env:
+  - name: POSTGRES_HOST
+    value: db-service
 ```
 
 ## Next steps
 New we have a running application that can be called from outside our cluster.
-In [step 2](https://github.com/Haagy/from-zero-to-k8s/tree/step/v2) we want to have a look at how extend our application more and how to connect it with other applications.
+In [use case 3](https://github.com/Haagy/from-zero-to-k8s/tree/usecase/v3) we want to have a look at how extend our application more and how to connect it with other applications.
 
 
 ## Playing around

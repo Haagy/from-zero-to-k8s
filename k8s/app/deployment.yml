@@ -14,19 +14,19 @@ spec:
         app: python-rest-api
     spec:
       containers:
-      - name: python-rest-api
-        image: docker.io/haagy/python-rest-api:1.2
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 6666
-        env:
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-secrets
-              key: POSTGRES_PASSWORD
-        - name: POSTGRES_HOST
-          value: db-service
-        envFrom:
-        - configMapRef:
-            name: db-config
+        - name: python-rest-api
+          image: docker.io/haagy/python-rest-api:1.2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6666
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_HOST
+              value: db-service
+          envFrom:
+            - configMapRef:
+                name: db-config
