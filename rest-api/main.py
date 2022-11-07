@@ -56,7 +56,7 @@ def create_table():
 
 
 @app.route("/get-values", methods=['GET'])
-def get_all():
+def get_values():
     try:
         conn = __get_database_connection()
         cur = conn.cursor()
@@ -66,7 +66,7 @@ def get_all():
         records = cur.fetchall()
         all_values = ""
         for row in records:
-            all_values += f'Value: {row}'
+            all_values += f'Value: {row} \n'
         return all_values
 
     except (Exception, db.Error) as error:
