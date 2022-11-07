@@ -26,12 +26,34 @@ def write2table(some_value):
         return f"value: {some_value} and record: {record}"
 
         #cur.execute(
-        #    'INSERT INTO mobile (ID, SOME_VALUE) VALUES (%s,%s)',
+        #    'INSERT INTO mobile (SOME_VALUE) VALUES (%s)',
         #    (5, some_value)
         #)
 
     except (Exception, db.Error) as error:
         return f"Failed to insert record into rest_api_table: {error}"
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+@app.route("/create-table", methods=['POST'])
+def create_table():
+    try:
+        conn = db.connect(
+            host=os.getenv("POSTGRES_HOST"),
+            database=os.getenv("POSTGRES_DB"),
+            user=os.getenv("POSTGRES_USER"),
+            password=os.getenv("POSTGRES_PASSWORD")
+        )
+        cur = conn.cursor()
+        cur.execute(
+            'CREATE TABLE IF NOT EXISTS rest_api_table (SOME_VALUE VARCHAR (255) UNIQUE NOT NULL);'
+        )
+        conn.commit()
+        return "Created database [rest_api_table]"
+    except (Exception, db.Error) as error:
+        return f"Failed to create database: {error}"
     finally:
         if conn is not None:
             conn.close()
