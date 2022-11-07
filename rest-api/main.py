@@ -5,32 +5,36 @@ from flask import Flask
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/", methods=['GET'])
 def index():
     return f"Hello! Greetings from Pod: {socket.gethostname()}"
 
-def get_connection_string():
-    db_name = os.getenv("POSTGRES_DB")
-    db_user = os.getenv("POSTGRES_USER")
+@app.route("/write", methods=['POST'])
+def write2table(some_value):
+    try:
+        conn = db.connect(
+            host=os.getenv("POSTGRES_HOST"),
+            database=os.getenv("POSTGRES_DB"),
+            user=os.getenv("POSTGRES_USER"),
+            password=os.getenv("POSTGRES_PASSWORD")
+        )
+        cur = conn.cursor()
+        cur.execute(
+            'SELECT ID FROM rest_api_table ORDER BY ID DESC LIMIT 1'
+        )
+        record = cur.fetchone()
+        return f"value: {some_value} and record: {record}"
 
-    with open('/secrets/DATABASE_PASSWORD', 'r') as f:
-        db_pass = f.read()
+        #cur.execute(
+        #    'INSERT INTO mobile (ID, SOME_VALUE) VALUES (%s,%s)',
+        #    (5, some_value)
+        #)
 
-    db_host = os.getenv("POSTGRES_HOST")
-    db_port = os.getenv("POSTGRES_PORT", 5432)
-
-    return f'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'
-
-@app.route("/write")
-def write2table():
-    conn = db.connect(
-        host=os.getenv("POSTGRES_HOST"),
-        database=os.getenv("POSTGRES_DB"),
-        user=os.getenv("POSTGRES_USER"),
-        password=os.getenv("POSTGRES_PASSWORD")
-    )
-    # return "Created table 'RNG'"
-    return "Table already exists"
+    except (Exception, db.Error) as error:
+        return f"Failed to insert record into rest_api_table: {error}"
+    finally:
+        if conn is not None:
+            conn.close()
 
 if __name__ == "__main__":
     app.run(
