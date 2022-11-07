@@ -6,3 +6,5 @@ CREATE TABLE rest_api_table (
 	ID serial PRIMARY KEY,
 	SOME_VALUE VARCHAR (255) UNIQUE NOT NULL
 );
+
+GRANT ALL PRIVILEGES ON TABLE rest_api_table TO rest_api_user;

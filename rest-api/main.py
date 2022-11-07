@@ -9,7 +9,7 @@ app = Flask(__name__)
 def index():
     return f"Hello! Greetings from Pod: {socket.gethostname()}"
 
-@app.route("/write", methods=['POST'])
+@app.route("/write/<some_value>", methods=['POST'])
 def write2table(some_value):
     try:
         conn = db.connect(
@@ -20,7 +20,7 @@ def write2table(some_value):
         )
         cur = conn.cursor()
         cur.execute(
-            'SELECT ID FROM rest_api_table ORDER BY ID DESC LIMIT 1'
+            'SELECT ID FROM rest_api_table ORDER BY ID DESC LIMIT 1;'
         )
         record = cur.fetchone()
         return f"value: {some_value} and record: {record}"

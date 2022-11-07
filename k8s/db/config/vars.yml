@@ -6,6 +6,6 @@ metadata:
   labels:
     app: postgres
 data:
-  POSTGRES_DB: pythondb
-  POSTGRES_USER: python
+  POSTGRES_DB: rest_api_db
+  POSTGRES_USER: rest_api_user
   POSTGRES_PORT: "5432"
