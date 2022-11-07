@@ -58,11 +58,13 @@ env:
 ```
 
 ## Next steps
-New we have a running application that can be called from outside our cluster.
-In [use case 3](https://github.com/Haagy/from-zero-to-k8s/tree/usecase/v3) we want to have a look at how extend our application more and how to connect it with other applications.
+Now we can persist data that our application is creating.
+But what if we want to deploy it in another cluster. 
+We would need to execute every single file to do so. That is not really handy. 
+In [use case 3](https://github.com/Haagy/from-zero-to-k8s/tree/usecase/v3) we want to have a look at how to package up Kubernetes files.
+There we are getting familiar with helm charts.
 
 
 ## Playing around
-At this point you are able to play with your Deployment.
-You could change the DeploymentStrategy and see how one differs from the other.
-Have a look at [here](https://blog.container-solutions.com/kubernetes-deployment-strategies) for more information about strategies.
+Here you can adjust some configuration files and deploy the resource files again. 
+Or try deploying a different database and connect it with the rest application. 
