@@ -23,10 +23,9 @@ def write2table(some_value):
         conn = __get_database_connection()
         cur = conn.cursor()
         cur.execute(
-            'INSERT INTO mobile (SOME_VALUE) VALUES (%s)',
-            some_value
+            f"INSERT INTO rest_api_table(SOME_VALUE) VALUES ('{some_value}')"
         )
-        return f"Added value: [{some_value}] to database [rest_api_table]"
+        return f"Added value: [{some_value}] to database: [rest_api_table]"
 
     except (Exception, db.Error) as error:
         return f"Failed to insert record into rest_api_table: {error}"
