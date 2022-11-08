@@ -1,6 +1,7 @@
 import os
 import socket
 import psycopg2
+import sys
 from flask import Flask
 
 app = Flask(__name__)
@@ -70,7 +71,8 @@ if __name__ == "__main__":
         connection.commit()
         print("Initialized app with database table [rest_api_table]")
     except (Exception, psycopg2.Error) as error:
-        print(f"Failed to create database: {error}")
+        print("Failed to initialize database table")
+        sys.exit(error)
     finally:
         if connection is not None:
             connection.close()
