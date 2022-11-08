@@ -1,4 +1,4 @@
-# Use case 3
+# Use case 2
 Our application starts growing more and more. We want to improve our application and need to persist our data.
 Therefore, we need to create:
 * A) [Configurations](#a-configurations)
