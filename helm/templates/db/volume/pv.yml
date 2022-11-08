@@ -10,7 +10,7 @@ spec:
   capacity:
     storage: {{ .Values.db.volume.storage }}
   accessModes:
-    - {{ .Values.db.volume.storage }}
+    - {{ .Values.db.volume.accessMode }}
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: "/mnt/data"

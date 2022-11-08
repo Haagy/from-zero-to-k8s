@@ -6,7 +6,7 @@ metadata:
 spec:
   storageClassName: {{ .Values.db.volume.storageClassName }}
   accessModes:
-    - {{ .Values.db.volume.accessModes }}
+    - {{ .Values.db.volume.accessMode }}
   resources:
     requests:
       storage: {{ .Values.db.volume.storage }}

@@ -16,5 +16,5 @@ db:
   password: asdfasdf
   volume:
     storage: 1Gi
-    accessModes: ReadWriteOnce
+    accessMode: ReadWriteOnce
     storageClassName: manual
