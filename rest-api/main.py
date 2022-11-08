@@ -1,13 +1,14 @@
 import os
 import socket
-import psycopg2 as db
+import psycopg2
 from flask import Flask
 
 app = Flask(__name__)
+connection = None
 
 
 def __get_database_connection():
-    return db.connect(
+    return psycopg2.connect(
         host=os.getenv("POSTGRES_HOST"),
         database=os.getenv("POSTGRES_DB"),
         user=os.getenv("POSTGRES_USER"),
@@ -23,60 +24,57 @@ def index():
 @app.route("/write/<some_value>", methods=['POST'])
 def write2table(some_value):
     try:
-        conn = __get_database_connection()
-        cur = conn.cursor()
-        cur.execute(
+        connection = __get_database_connection()
+        cursor = connection.cursor()
+        cursor.execute(
             f"INSERT INTO rest_api_table(SOME_VALUE) VALUES ('{some_value}')"
         )
-        conn.commit()
+        connection.commit()
         return f"Added value: [{some_value}] to database: [rest_api_table]"
 
-    except (Exception, db.Error) as error:
+    except (Exception, psycopg2.Error) as error:
         return f"Failed to insert record into rest_api_table: {error}"
     finally:
-        if conn is not None:
-            conn.close()
-
-
-@app.route("/create-table", methods=['POST'])
-def create_table():
-    try:
-        conn = __get_database_connection()
-        cur = conn.cursor()
-        cur.execute(
-            'CREATE TABLE IF NOT EXISTS rest_api_table (SOME_VALUE VARCHAR (255) UNIQUE NOT NULL);'
-        )
-        conn.commit()
-        return "Created table [rest_api_table]"
-    except (Exception, db.Error) as error:
-        return f"Failed to create database: {error}"
-    finally:
-        if conn is not None:
-            conn.close()
+        if connection is not None:
+            connection.close()
 
 
 @app.route("/get-values", methods=['GET'])
 def get_values():
     try:
-        conn = __get_database_connection()
-        cur = conn.cursor()
-        cur.execute(
+        connection = __get_database_connection()
+        cursor = connection.cursor()
+        cursor.execute(
             'SELECT * from rest_api_table'
         )
-        records = cur.fetchall()
+        records = cursor.fetchall()
         all_values = ""
         for row in records:
             all_values += f'Value: {row} \n'
         return all_values
 
-    except (Exception, db.Error) as error:
+    except (Exception, psycopg2.Error) as error:
         return f"Failed to get values from rest_api_table: {error}"
     finally:
-        if conn is not None:
-            conn.close()
+        if connection is not None:
+            connection.close()
 
 
 if __name__ == "__main__":
+    try:
+        connection = __get_database_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            'CREATE TABLE IF NOT EXISTS rest_api_table (SOME_VALUE VARCHAR (255) UNIQUE NOT NULL);'
+        )
+        connection.commit()
+        print("Initialized app with database table [rest_api_table]")
+    except (Exception, psycopg2.Error) as error:
+        print(f"Failed to create database: {error}")
+    finally:
+        if connection is not None:
+            connection.close()
+
     app.run(
         host='0.0.0.0',
         port=5000
