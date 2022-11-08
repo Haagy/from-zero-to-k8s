@@ -8,6 +8,6 @@ spec:
     app: python-rest-api
   ports:
   - protocol: "TCP"
-    port: 6000
-    targetPort: 6666
+    port: 5000
+    targetPort: 5000
   type: LoadBalancer
