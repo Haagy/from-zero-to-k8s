@@ -25,9 +25,6 @@ spec:
                 secretKeyRef:
                   name: db-secrets
                   key: POSTGRES_PASSWORD
-          envFrom:
-            - configMapRef:
-                name: db-config
           ports:
             - containerPort: 5432
               name: db-container
@@ -36,6 +33,16 @@ spec:
               mountPath: /var/lib/postgresql/data
             - name: init-db
               mountPath: /docker-entrypoint-initdb.d
+          readinessProbe:
+            exec:
+              command: [ "psql", "-w", "-U", "rest_api_user", "-d", "rest_api_db", "-c", "SELECT 1" ]
+            initialDelaySeconds: 15
+            timeoutSeconds: 2
+          livenessProbe:
+            exec:
+              command: [ "psql", "-w", "-U", "rest_api_user", "-d", "rest_api_db", "-c", "SELECT 1" ]
+            initialDelaySeconds: 45
+            timeoutSeconds: 2
       volumes:
         - name: postgres-persistent-storage
           persistentVolumeClaim:
