@@ -1,0 +1,20 @@
+# Default values for from-zero-to-k8s
+
+# values for modifying the python rest api
+app:
+  imageTag: docker.io/haagy/python-test-docker:1.2
+  port: 5000
+  replicas: 4
+
+# values for modifying the database
+db:
+  imageTag: docker.io/library/postgres:14.5-bullseye
+  port: 5432
+  replicas: 1
+  name: rest_api_db
+  user: rest_api_user
+  password: asdfasdf
+  volume:
+    storage: 1Gi
+    accessModes: ReadWriteOnce
+    storageClassName: manual

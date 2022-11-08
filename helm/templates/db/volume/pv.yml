@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: db-pv
+  name: {{ .Release.Name }}-db-pv
   labels:
     type: local
 spec:
-  storageClassName: manual
+  storageClassName: {{ .Values.db.volume.storageClassName }}
   capacity:
-    storage: 2Gi
+    storage: {{ .Values.db.volume.storage }}
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.db.volume.storage }}
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: "/mnt/data"

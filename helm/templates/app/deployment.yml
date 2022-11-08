@@ -2,31 +2,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python-rest-api
+  name: {{ .Release.Name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.app.replicas }}
   selector:
     matchLabels:
-      app: python-rest-api
+      app: {{ .Release.Name }}-app
   template:
     metadata:
       labels:
-        app: python-rest-api
+        app: {{ .Release.Name }}-app
     spec:
       containers:
-        - name: python-rest-api
-          image: docker.io/haagy/python-rest-api:1.2
+        - name: {{ .Release.Name }}-app
+          image: {{ .Values.app.imageTag }}
           imagePullPolicy: Always
           ports:
-            - containerPort: 6666
+            - containerPort: {{ .Values.app.port }}
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-secrets
+                  name: {{ .Release.Name }}-db-secrets
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_HOST
-              value: db-service
+              value: {{ .Release.Name }}-db-service
           envFrom:
             - configMapRef:
-                name: db-config
+                name: {{ .Release.Name }}-db-config

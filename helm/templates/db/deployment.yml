@@ -2,45 +2,45 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db
+  name: {{ .Release.Name }}-db
   labels:
-    app: db
+    app: {{ .Release.Name }}-db
 spec:
-  replicas: 1
+  replicas: {{ .Values.db.replicas }}
   selector:
     matchLabels:
-      app: db
+      app: {{ .Release.Name }}-db
   template:
     metadata:
       labels:
-        app: db
+        app: {{ .Release.Name }}-db
     spec:
       containers:
-        - name: db
-          image: docker.io/postgres:14.5-bullseye
+        - name: {{ .Release.Name }}-db
+          image: {{ .Values.db.imageTag }}
           imagePullPolicy: Always
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-secrets
+                  name: {{ .Release.Name }}-db-secrets
                   key: POSTGRES_PASSWORD
           envFrom:
             - configMapRef:
-                name: db-config
+                name: {{ .Release.Name }}-db-config
           ports:
-            - containerPort: 5432
-              name: db-container
+            - containerPort: {{ .Values.db.port }}
+              name: db-container-port
           volumeMounts:
-            - name: postgres-persistent-storage
+            - name: {{ .Release.Name }}-persistent-storage
               mountPath: /var/lib/postgresql/data
-            - name: init-db
+            - name: {{ .Release.Name }}-init-db
               mountPath: /docker-entrypoint-initdb.d
       volumes:
-        - name: postgres-persistent-storage
+        - name: {{ .Release.Name }}-persistent-storage
           persistentVolumeClaim:
             claimName: db-pvc
-        - name: init-db
+        - name: {{ .Release.Name }}-init-db
           configMap:
             name: init-db.sql
 
