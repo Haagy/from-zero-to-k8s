@@ -1,6 +1,7 @@
 # Use case 2
 Our application starts growing more and more. We want to improve our application and need to persist our data.
 Therefore, we need to create:
+* [Prerequisites](#0-prerequisites)
 * A) [Configurations](#a-configurations)
   * Add a Secret used in app and database deployment
   * Create a ConfigMap containing information needed for the database connection
@@ -11,6 +12,13 @@ Therefore, we need to create:
 * C) Another [Deployment](#c-database-deployment) and update existing 
   * Create a database Deployment and update
   * Update existing
+
+## 0) Prerequisites
+Create a namespace where all resources from this use case should be grouped:
+```bash
+# secret
+kubectl create namespace=usecase-v2
+```
 
 ## A) Configurations
 * [Secrets](k8s/db/config/vars.yml) hide sensitive data as Base64 encoded string.
