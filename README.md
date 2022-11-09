@@ -67,6 +67,33 @@ kubectl --namespace=usecase-v2 apply \
   --filename=https://raw.githubusercontent.com/Haagy/from-zero-to-k8s/usecase/v2/k8s/app/svc.yml
 ```
 
+When all applications are initialized you can test them by:
+```bash
+# get service port
+export SERVICE_PORT=$(kubectl --namespace=usecase-v3 get service/usecase-v3-app-service  --output=go-template='{{(index .spec.ports 0).nodePort}}')
+
+# check database status
+curl localhost:$SERVICE_PORT/get-values
+
+# should return
+## Table [rest_api_table] contains no values
+##
+## Add some by calling [<SERVICE_NAME>:<SERVICE_PORT>/write/<VALUE>]
+
+# add some values
+curl -X POST localhost:$SERVICE_PORT/write/first
+curl -X POST localhost:$SERVICE_PORT/write/something-else
+
+# check database status
+curl localhost:$SERVICE_PORT/get-values
+
+# should return
+## Table [rest_api_table] contains the following values:
+##
+## Value: first
+## Value: something-else
+```
+
 To connect the python rest api to the database we add the name of the database Service as environment variable to [application deployment](k8s/app/deployment.yml)
 ```yaml
 env:
