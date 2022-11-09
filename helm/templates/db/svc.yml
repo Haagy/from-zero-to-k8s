@@ -4,12 +4,12 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}-db-service
   labels:
-    app: db
+    app: {{ .Release.Name }}-db
 spec:
-  ports:
-  - port: 5432
-    targetPort: 5432
-    protocol: TCP
-  selector:
-    app: db
   type: LoadBalancer
+  selector:
+    app: {{ .Release.Name }}-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+      protocol: TCP
