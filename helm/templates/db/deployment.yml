@@ -19,18 +19,25 @@ spec:
         - name: {{ .Release.Name }}-db
           image: {{ .Values.db.imageTag }}
           imagePullPolicy: Always
+          readinessProbe:
+            exec:
+              command: [ "psql", "-w", "-U", {{ .Values.db.user | quote }}, "-d", {{ .Values.db.name | quote }}, "-c", "SELECT 1" ]
+            initialDelaySeconds: 15
+            timeoutSeconds: 2
+          livenessProbe:
+            exec:
+              command: [ "psql", "-w", "-U", {{ .Values.db.user | quote }}, "-d", {{ .Values.db.name | quote }}, "-c", "SELECT 1" ]
+            initialDelaySeconds: 45
+            timeoutSeconds: 2
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}-db-secrets
                   key: POSTGRES_PASSWORD
-          envFrom:
-            - configMapRef:
-                name: {{ .Release.Name }}-db-config
           ports:
             - containerPort: {{ .Values.db.port }}
-              name: db-container-port
+              name: db-port
           volumeMounts:
             - name: {{ .Release.Name }}-persistent-storage
               mountPath: /var/lib/postgresql/data
@@ -39,9 +46,9 @@ spec:
       volumes:
         - name: {{ .Release.Name }}-persistent-storage
           persistentVolumeClaim:
-            claimName: db-pvc
+            claimName: {{ .Release.Name }}-db-pvc
         - name: {{ .Release.Name }}-init-db
           configMap:
-            name: init-db.sql
+            name: {{ .Release.Name }}-init-db
 
 

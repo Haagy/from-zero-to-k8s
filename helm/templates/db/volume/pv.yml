@@ -13,4 +13,4 @@ spec:
     - {{ .Values.db.volume.accessMode }}
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: "/mnt/data"
+    path: /mnt/{{ .Release.Name }}-data

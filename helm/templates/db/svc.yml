@@ -10,7 +10,6 @@ spec:
   - port: 5432
     targetPort: 5432
     protocol: TCP
-    name: db
   selector:
     app: db
   type: LoadBalancer
