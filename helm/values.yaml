@@ -4,7 +4,7 @@
 app:
   imageTag: docker.io/haagy/python-rest-api:1.2
   port: 5000
-  replicas: 1
+  replicas: 4
 
 # values for modifying the database
 db:

@@ -27,7 +27,7 @@ spec:
           livenessProbe:
             exec:
               command: [ "psql", "-w", "-U", {{ .Values.db.user | quote }}, "-d", {{ .Values.db.name | quote }}, "-c", "SELECT 1" ]
-            initialDelaySeconds: 45
+            initialDelaySeconds: 35
             timeoutSeconds: 2
           env:
             - name: POSTGRES_PASSWORD
