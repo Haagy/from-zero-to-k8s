@@ -51,8 +51,17 @@ def get_values():
         records = cursor.fetchall()
         all_values = ""
         for row in records:
-            all_values += f'Value: {row} \n'
-        return all_values
+            all_values += f'Value: {row[0][:-1]}\n'
+        if not all_values:
+            return """
+Table [rest_api_table] contains no values
+
+Add some by calling [<SERVICE_NAME>:<SERVICE_PORT>/write/<VALUE>]"""
+        else:
+            return f"""
+Table [rest_api_table] contains the following values:
+
+{all_values}"""
 
     except (Exception, psycopg2.Error) as error:
         return f"Failed to get values from rest_api_table: {error}"
