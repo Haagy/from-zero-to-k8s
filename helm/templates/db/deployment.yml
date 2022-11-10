@@ -14,7 +14,9 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-db
+      {{ include "dbAnnotations" . | indent 6 }}
     spec:
+      {{ include "secretsServiceAccount" . | indent 6 }}
       containers:
         - name: {{ .Release.Name }}-db
           image: {{ .Values.db.imageTag }}
@@ -29,12 +31,6 @@ spec:
               command: [ "psql", "-w", "-U", {{ .Values.db.user | quote }}, "-d", {{ .Values.db.name | quote }}, "-c", "SELECT 1" ]
             initialDelaySeconds: 35
             timeoutSeconds: 2
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-db-secrets
-                  key: POSTGRES_PASSWORD
           ports:
             - containerPort: {{ .Values.db.port }}
               name: db-port
@@ -43,6 +39,9 @@ spec:
               mountPath: /var/lib/postgresql/data
             - name: {{ .Release.Name }}-init-db
               mountPath: /docker-entrypoint-initdb.d
+            - name: {{ .Release.Name }}-load-secret
+              mountPath: /etc/profile.d
+            {{ include "secretVolumeMount" . | indent 12 }}
       volumes:
         - name: {{ .Release.Name }}-persistent-storage
           persistentVolumeClaim:
@@ -50,5 +49,9 @@ spec:
         - name: {{ .Release.Name }}-init-db
           configMap:
             name: {{ .Release.Name }}-init-db
+        - name: {{ .Release.Name }}-load-secret
+          configMap:
+            name: {{ .Release.Name }}-load-secret
+        {{ include "secretVolume" . | indent 8 }}
 
 

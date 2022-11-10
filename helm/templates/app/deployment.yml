@@ -12,7 +12,9 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-app
+      {{ include "appAnnotations" . | indent 6 }}
     spec:
+      {{ include "secretsServiceAccount" . | indent 6 }}
       containers:
         - name: {{ .Release.Name }}-app
           image: {{ .Values.app.imageTag }}
@@ -20,11 +22,6 @@ spec:
           ports:
             - containerPort: {{ .Values.app.port }}
           env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-db-secrets
-                  key: POSTGRES_PASSWORD
             - name: POSTGRES_HOST
               value: {{ .Release.Name }}-db-service
           envFrom:
@@ -43,3 +40,5 @@ spec:
               port: {{ .Values.app.port }}
             initialDelaySeconds: 70
             timeoutSeconds: 3
+          {{ include "appVolumeMounts" . | indent 10 }}
+      {{ include "appVolumes" . | indent 6 }}

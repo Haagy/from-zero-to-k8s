@@ -2,7 +2,7 @@
 
 # values for modifying the python rest api
 app:
-  imageTag: docker.io/haagy/python-rest-api:1.2
+  imageTag: docker.io/haagy/python-rest-api:1.3
   port: 5000
   replicas: 4
 
@@ -18,3 +18,7 @@ db:
     storage: 1Gi
     accessMode: ReadWriteOnce
     storageClassName: manual
+
+# values for modifying secret data
+environment:
+  is-prod: true
