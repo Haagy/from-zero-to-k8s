@@ -7,6 +7,4 @@ metadata:
     app: {{ .Release.Name }}-db
 data:
   init-db.sql: |
-    CREATE DATABASE {{ .Values.db.name }};
-    CREATE USER {{ .Values.db.user }} WITH ENCRYPTED PASSWORD {{ .Values.db.password | squote }};
-    GRANT ALL PRIVILEGES ON DATABASE {{ .Values.db.name }} TO {{ .Values.db.user }};
+    {{- include "dbInitScript" . | indent 4 }}

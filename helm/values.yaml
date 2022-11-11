@@ -21,4 +21,6 @@ db:
 
 # values for modifying secret data
 environment:
-  is-prod: true
+  isProd: true
+
+

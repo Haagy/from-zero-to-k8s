@@ -1,27 +1,44 @@
-# Use case 3
-As the application growths incrementally bigger and bigger we need a way to group things together.
-In Kubernetes, we can make use of Helm to solve this problem.
-* A) [Happy helming](#a-happy-helming)
-  * Template all values that are repeated in different files
+# Use case 4
+In this use case we will make our helm deployment more dynamic by adding helper templates to switch configuration.
+A common scenario would be to switch between `test` and `prod` environments.
+Depending on your security requirements, in a `test` environment it can be okay to use passwords from kubernetes secrets and storing them as `base64` string in some version control. 
+So developers can deploy and test things with more ease.
+But moving to a production environment this is not good practise anymore. 
+Vault for example, helps you by capsuling multiple kinds of security topics in a single application. 
+In this use case we want to get in touch with password management in vault injected by a side-car container.
 
-## A) Happy helming
-With all resources templated as variables the whole deployment can be executed with two commands:
+* A) Prerequisites
+  * Before implementing and testing this use case you need to create a vault instance und add some default configuration to it
+  * Find the necessary [manual here](PREREQUISITES.md)
+* B) [Dynamic helm with vault](#a-dynamic-helm-with-vault)
+  * Add a parameter to [values.yaml](helm/values.yaml) that can be used to switch between different deployments
+
+## A) Dynamic helm with vault
+By adding the following helpers the required switching can be achieved:
+* [app/helper.tpl](helm/templates/app/_helper.tpl)
+  * Manages secrets mounted by volumes
+* [db/helper.tpl](helm/templates/db/_helper.tpl)
+  * Manages database initiation script 
+* [secret/helper.tpl](helm/templates/secret/_helper.tpl)
+  * Manage volumes containing secrets, annotations to mount secrets from vault and the service account used by vault
 ```bash
 # get the helm chart
-git clone --single-branch --branch usecase/v3 https://github.com/Haagy/from-zero-to-k8s.git usecase-v3
+git clone --single-branch --branch usecase/v4 https://github.com/Haagy/from-zero-to-k8s.git usecase-v4
 
 # install or upgrade with helm
-helm upgrade --install --create-namespace --namespace usecase-v3 usecase-v3 usecase-v3/helm/
+helm upgrade --install --create-namespace --namespace usecase-v4 usecase-v4 usecase-v4/helm/
 ```
 
 Wait until all resources are in ready state. This can take a few minutes.
 ```bash
-kubectl --namespace=usecase-v3 get all
+kubectl --namespace=usecase-v4 get all
 ```
 When all applications are initialized you can test them by:
 ```bash
 # get service port
-export SERVICE_PORT=$(kubectl --namespace=usecase-v3 get service/usecase-v3-app-service  --output=go-template='{{(index .spec.ports 0).nodePort}}')
+export SERVICE_PORT=$(kubectl get service/usecase-v4-app-service \
+                        --output=go-template='{{(index .spec.ports 0).nodePort}}' \
+                        --namespace=usecase-v4 )
 
 # check database status
 curl localhost:$SERVICE_PORT/get-values
@@ -46,24 +63,26 @@ curl localhost:$SERVICE_PORT/get-values
 ```
 
 ## Next steps
-Secrets should be kept secret as the word implies. 
-But now everyone who has permission to view [db-secret.yml](helm/templates/db/config/secret.yml) in our repository can decode the base64 database password and misuse it.
-The current status can easily be used in a development environment. 
-But talking about going to production with it can cause concerns.
-One useful technology for capsuling security is [Hashicorp Vault](https://www.vaultproject.io/)
-In [use case 4](https://github.com/Haagy/from-zero-to-k8s/tree/usecase/v4) we will make our helm deployment more dynamic and add the possibility to switch between for example dev and prod mode.
+With more and more individual applications getting deployed to one or different clusters, it gets more and more challenging managing configuration the applications need to interact with each other.
+Like authorization, authentication, routing or secure communication.
+Vault for example helps you to achieve the first two.
+
+In [use case 5](https://github.com/Haagy/from-zero-to-k8s/tree/usecase/v5) we will make our helm deployment more dynamic and add the possibility to switch between for example dev and prod mode.
 
 
 ## Playing around
-From here on you can adjust some configuration files and deploy the resource files again with:
+Try changing `environment.isProd` to `false` and deploy this helm chart again in a different namespace.
+It should also work as expected just with the difference, that the password used to initialize the database comes from [values.yaml](helm/values.yaml) (`db.pasword: asdfasdf`).
+You could do that in a single command as well:
 ```bash
-helm upgrade --install --create-namespace --namespace usecase-v3 usecase-v3 usecase-v3/helm/
+# checkout repo
+git clone --single-branch --branch usecase/v4 https://github.com/Haagy/from-zero-to-k8s.git usecase-v4-dev
+
+# deploy helm chart
+helm upgrade --install \
+  --set=environment.isProd=false \
+  --create-namespace \
+  --namespace usecase-v4-dev \
+  usecase-v4-dev usecase-v4/helm/
 ```
-Find some best practices [here](https://helm.sh/docs/chart_best_practices/conventions/).
-Or check out the default helm demo which can be created with:
-```bash
-helm create buildachart
-# Creating my-demo
-ls my-demo/
-# Chart.yaml   charts/      templates/   values.yaml
-```
+Find some other ways to interact with vault [here](https://helm.sh/docs/chart_best_practices/conventions/).

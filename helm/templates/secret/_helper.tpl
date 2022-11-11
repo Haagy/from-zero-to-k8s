@@ -1,41 +1,37 @@
-{{- define "secretsPath" }}
-  {{- if .Values.secrets.vault.enabled }}
-vault
-  {{ else }}
-secrets
+{{- define "secretVolumeMount" }}
+  {{- if not .Values.environment.isProd }}
+- name: {{ .Release.Name }}-db-password
+  mountPath: /secrets
+  readOnly: true
   {{- end }}
 {{- end }}
 
-{{- define "secretVolumeMount" }}
-- name: db-password
-  mountPath: {{ .Values.secrets.path }}
-  readOnly: true
-{{- end }}
-
 {{- define "secretVolume" }}
-- name: db-password
+  {{- if not .Values.environment.isProd }}
+- name: {{ .Release.Name }}-db-password
   secret:
     secretName: {{ .Release.Name }}-db-secret
     optional: false
+  {{- end }}
 {{- end }}
 
 {{- define "secretsServiceAccount" }}
-  {{- if .Values.secrets.vault.enabled }}
+  {{- if .Values.environment.isProd }}
 serviceAccountName: {{ .Release.Name }}-sa
   {{- end }}
 {{- end }}
 
 
-{{- define "appAnnotations" }}
-  {{- if .Values.secrets.vault.enabled }}
+{{- define "vaultAnnotations" }}
+  {{- if .Values.environment.isProd }}
 annotations:
   vault.hashicorp.com/agent-inject: "true"
-  vault.hashicorp.com/agent-inject-secret-database: "secret/database"
-  vault.hashicorp.com/agent-inject-template-POSTGRES_PASSWORD: |
+  vault.hashicorp.com/agent-inject-secret-database_password: "secret/database"
+  vault.hashicorp.com/agent-inject-template-database_password: |
     {{ printf "{{- with secret \"secret/database\" -}}" }}
-    {{ printf "{{ .Data.data.password }}" }}
+    {{ printf "{{ .Data.data.POSTGRES_PASSWORD }}" }}
     {{ printf "{{- end }}" }}
-  vault.hashicorp.com/secret-volume-path-POSTGRES_PASSWORD: {{ include "secretsPath" }}
-  vault.hashicorp.com/role: {{ .Release.Name | quote }}
+  vault.hashicorp.com/secret-volume-path-database_password: /secrets
+  vault.hashicorp.com/role: use-cases
   {{- end }}
 {{- end }}

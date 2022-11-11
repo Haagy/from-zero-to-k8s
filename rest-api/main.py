@@ -9,12 +9,13 @@ connection = None
 
 
 def __get_database_connection():
-    return psycopg2.connect(
-        host=os.getenv("POSTGRES_HOST"),
-        database=os.getenv("POSTGRES_DB"),
-        user=os.getenv("POSTGRES_USER"),
-        password=os.getenv("POSTGRES_PASSWORD")
-    )
+    with open('/secrets/database_password', 'r') as f:
+        return psycopg2.connect(
+            host=os.getenv("POSTGRES_HOST"),
+            database=os.getenv("POSTGRES_DB"),
+            user=os.getenv("POSTGRES_USER"),
+            password=f.read().splitlines()[0]
+        )
 
 
 @app.route("/", methods=['GET'])
@@ -81,6 +82,9 @@ if __name__ == "__main__":
         print("Initialized app with database table [rest_api_table]")
     except (Exception, psycopg2.Error) as error:
         print("Failed to initialize database table")
+        with open('/secrets/database_password', 'r') as f:
+            print(f.read().splitlines())
+        print("Some ohter stuff")
         sys.exit(error)
     finally:
         if connection is not None:

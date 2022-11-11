@@ -14,13 +14,15 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-db
-      {{ include "dbAnnotations" . | indent 6 }}
+      {{- include "vaultAnnotations" . | indent 6 }}
     spec:
-      {{ include "secretsServiceAccount" . | indent 6 }}
+      {{- include "secretsServiceAccount" . | indent 6 }}
       containers:
         - name: {{ .Release.Name }}-db
           image: {{ .Values.db.imageTag }}
           imagePullPolicy: Always
+          args:
+            [ '/bin/bash', '-c', 'source /etc/profile.d/loadSecret.sh && docker-entrypoint.sh postgres' ]
           readinessProbe:
             exec:
               command: [ "psql", "-w", "-U", {{ .Values.db.user | quote }}, "-d", {{ .Values.db.name | quote }}, "-c", "SELECT 1" ]
@@ -41,7 +43,7 @@ spec:
               mountPath: /docker-entrypoint-initdb.d
             - name: {{ .Release.Name }}-load-secret
               mountPath: /etc/profile.d
-            {{ include "secretVolumeMount" . | indent 12 }}
+            {{- include "secretVolumeMount" . | indent 12 }}
       volumes:
         - name: {{ .Release.Name }}-persistent-storage
           persistentVolumeClaim:
@@ -52,6 +54,6 @@ spec:
         - name: {{ .Release.Name }}-load-secret
           configMap:
             name: {{ .Release.Name }}-load-secret
-        {{ include "secretVolume" . | indent 8 }}
+        {{- include "secretVolume" . | indent 8 }}
 
 

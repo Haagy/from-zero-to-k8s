@@ -1,8 +1,8 @@
 {{- define "dbInitScript" }}
-  {{- if .Values.secrets.vault.enabled }}
+  {{- if .Values.environment.isProd }}
 CREATE DATABASE {{ .Values.db.name }};
-\set content `cat /secrets/POSTGRES_PASSWORD`
-CREATE USER {{ .Values.db.user }} WITH ENCRYPTED PASSWORD :'content';
+\set password `cat /secrets/database_password`
+CREATE USER {{ .Values.db.user }} WITH ENCRYPTED PASSWORD :'password';
 GRANT ALL PRIVILEGES ON DATABASE {{ .Values.db.name }} TO {{ .Values.db.user }};
   {{- else }}
 CREATE DATABASE {{ .Values.db.name }};

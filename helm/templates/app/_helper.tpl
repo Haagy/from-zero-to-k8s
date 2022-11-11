@@ -1,19 +1,19 @@
 {{- define "appVolumeMounts" -}}
-  {{- if not .Values.secrets.vault.enabled }}
+  {{- if not .Values.environment.isProd }}
 volumeMounts:
-    {{ include "secretVolumeMount" . | indent 2 }}
+    {{- include "secretVolumeMount" . | indent 2 }}
   {{- else }}
-volumeMounts: {}
+volumeMounts: []
   {{- end }}
 {{- end }}
 
 
 {{- define "appVolumes" -}}
-  {{- if not .Values.secrets.vault.enabled }}
+  {{- if not .Values.environment.isProd }}
 volumes:
-    {{ include "secretVolume" . | indent 2 }}
+    {{- include "secretVolume" . | indent 2 }}
   {{- else }}
-volumes: {}
+volumes: []
   {{- end }}
 {{- end }}
 
