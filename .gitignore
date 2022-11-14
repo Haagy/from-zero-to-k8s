@@ -1,0 +1,47 @@
+## vscode ##
+.vscode/
+*.code-workspace
+###########
+
+## vs ##
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+###########
+
+## intellij idea ##
+*.iws
+*.iml
+*.ipr
+.idea/
+.attach_pid*
+out/
+###########
+
+## eclipse ##
+.classpath
+.project
+.settings
+.externalToolBuilders
+###########
+
+## sonarqube ##
+.sonar/
+.scannerwork/
+###########
+
+## sources ##
+*.com
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+*.log
+*.zip
+*.tar.gz
+###########
+
